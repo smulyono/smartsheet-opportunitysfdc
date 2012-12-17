@@ -1,0 +1,125 @@
+<apex:page sidebar="false" standardStylesheets="true"
+	controller="OppToSmartsheetController" tabStyle="Opportunities_To_SmartSheet__tab">
+
+<apex:form id="opForm">
+<apex:actionFunction name="retrieveMetadata" action="{!populateSheetMetadata}" reRender="opForm" />
+<apex:actionStatus id="waitingmetadata" startText="retrieving metadata..."></apex:actionStatus>
+
+<apex:pageMessages ></apex:pageMessages>
+
+<apex:pageBlock id="opBlock">
+	<apex:pageBlockSection title="Opportunity Filter" columns="1" id="opSection">
+		<apex:pageBlockSectionItem >
+			<apex:inputCheckbox value="{!filterStage}"></apex:inputCheckbox>
+			<apex:pageBlockSectionItem >
+				<apex:outputLabel value="Stage Name " />
+				<apex:inputField value="{!filterRec.StageName}" required="false"></apex:inputField>
+			</apex:pageBlockSectionItem>
+		</apex:pageBlockSectionItem>
+		<apex:pageBlockSectionItem >
+			<apex:inputCheckbox value="{!filterProbability}"></apex:inputCheckbox>
+			<apex:outputPanel >
+				<apex:outputLabel value="Probability (%) " />
+				<apex:inputField value="{!filterRec.Probability}" required="false"></apex:inputField>
+			</apex:outputPanel>
+		</apex:pageBlockSectionItem>
+		<apex:pageBlockSectionItem id="opSectionItem">
+			<apex:inputCheckbox value="{!filterCloseDate}"></apex:inputCheckbox>
+			<apex:pageBlockSectionItem id="opItem1">
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="Range Close Date"></apex:outputLabel>
+					<apex:inputField value="{!filterRec.CloseDate}" required="false"></apex:inputField>
+				</apex:PageBlockSectionItem>
+				<apex:pageBlockSectionItem id="opItem2">
+					<apex:outputLabel value=" until "></apex:outputLabel>
+					<apex:inputText value="{!strendDate}" id="enddate" 
+						onFocus="DatePicker.pickDate(true, '{!$Component.opForm.opBlock.opSection.opSectionItem.opItem1.opItem2.enddate}', false)" size="12" />
+				</apex:PageBlockSectionItem>
+			</apex:pageBlockSectionItem>
+		</apex:pageBlockSectionItem>
+		<apex:pageBlockSectionItem >
+			&nbsp;
+			<apex:commandButton value="Filter Records" action="{!filterRecords}" reRender="opForm" />
+		</apex:pageBlockSectionItem>
+	</apex:pageBlockSection>
+	
+	<apex:pageBlockSection title="Create New Sheet" columns="1">
+		<apex:pageBlockSectionItem >
+			<apex:outputLabel value="Use Existing Sheet / Template"></apex:outputLabel>
+			<apex:selectList value="{!selectedSheet}" size="1">
+				<apex:selectOptions value="{!availableSheets}"></apex:selectOptions>
+			</apex:selectList>
+		</apex:pageBlockSectionItem>
+		<apex:pageBlockSectionItem >
+			<apex:outputLabel value="Create in Folder / Workspace"></apex:outputLabel>
+			<apex:selectList value="{!selectedFolder}" size="1">
+				<apex:selectOptions value="{!availableFolders}"></apex:selectOptions>
+			</apex:selectList>
+		</apex:pageBlockSectionItem>
+		<apex:pageBlockSectionItem >
+			<apex:outputLabel value="Name of New Sheet "></apex:outputLabel>
+			<apex:inputText value="{!newSheetName}"></apex:inputText>
+		</apex:pageBlockSectionItem>
+		
+		<apex:pageBlockSectionItem >
+			&nbsp;
+			<apex:commandButton value="Create New Spreadsheet" action="{!createNewSpreadsheet}"/>
+		</apex:pageBlockSectionItem>
+	</apex:pageBlockSection>
+	
+	<apex:pageBlockSection title="Export To Existing" columns="1">
+		<apex:pageBlockSectionItem >
+			<apex:outputLabel value="Use Existing Sheet / Template"></apex:outputLabel>
+			<apex:selectList value="{!selectedToSheet}" size="1" onchange="retrieveMetadata();">
+				<apex:selectOptions value="{!availableToSheets}">
+				</apex:selectOptions>
+			</apex:selectList>
+		</apex:pageBlockSectionItem>
+		<apex:pageBlockSectionItem >
+			&nbsp;
+			<apex:outputLink value="{!sheetLink}">{!sheetLink}</apex:outputLink>
+		</apex:pageBlockSectionItem>
+	</apex:pageBlockSection>
+	
+	<apex:pageBlockSection title="Column Mapping" columns="2"  rendered="{!showMapping}">
+		<apex:repeat Value="{!columnMapping}" var="cm">
+			<apex:outputText value="{!cm}" />
+			<apex:selectList size="1" value="{!columnMapping[cm]}">
+				<apex:selectOptions value="{!columnOptions}"></apex:selectOptions>
+			</apex:selectList>
+		</apex:repeat>
+		&nbsp;
+		<apex:commandButton value="Export To SpreadSheet" action="{!exportSpreadsheet}"/>
+	</apex:pageBlockSection>
+
+</apex:pageBlock>
+
+<apex:outputPanel id="resultBlock">
+	<apex:pageBlock >
+	<apex:pageBlockTable value="{!resultRecords}" var="ritem">
+		<apex:column >
+			<apex:facet name="header">ID</apex:facet>
+			<apex:outputField value="{!ritem.ID}" />
+		</apex:column>
+		<apex:column >
+			<apex:facet name="header">Close Date</apex:facet>
+			<apex:outputField value="{!ritem.CloseDate}" />
+		</apex:column>
+		<apex:column >
+			<apex:facet name="header">Account Name</apex:facet>
+			<apex:outputField value="{!ritem.name}" />
+		</apex:column>
+		<apex:column >
+			<apex:facet name="header">Stage Name</apex:facet>
+			<apex:outputField value="{!ritem.StageName}" />
+		</apex:column>
+		<apex:column >
+			<apex:facet name="header">Probability (%)</apex:facet>
+			<apex:outputField value="{!ritem.Probability}" />
+		</apex:column>
+	</apex:pageBlockTable>	
+	</apex:pageBlock>
+</apex:outputPanel>
+</apex:form>
+
+</apex:page>
