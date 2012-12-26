@@ -8,3 +8,4 @@ Features included :
 * Ability to export the opportunity data from SFDC to SmartSheet (limited to 10 rows)
 * Ability to map the fields before export
 * Filter the opportunity records before exporting to SmartSheet
+* Multiple configuration for smartsheet connections
